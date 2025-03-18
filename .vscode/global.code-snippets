@@ -1,0 +1,20 @@
+{
+  "main": {
+    "scope": "python",
+    "prefix": "main",
+    "body": [
+      "def main() -> None:",
+      "    $1",
+      "",
+      "if __name__ == '__main__':",
+      "    main()",
+    ],
+  },
+  "todo": {
+    "scope": "python",
+    "prefix": "todo",
+    "body": [
+      "# TODO (Daoji, $CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE): $1",
+    ],
+  },
+}
