@@ -1,0 +1,19 @@
+# 使用aws-traffic命令的crontab配置示例
+# 每天凌晨2点运行命令，记录输出到日志文件
+0 2 * * * cd /完整/路径/到/daoji-demo && /完整/路径/到/.venv/bin/aws-traffic >> /完整/路径/到/daoji-demo/logs/traffic.log 2>&1
+
+# 如果想禁用自动停止功能，可以使用--no-auto-stop选项
+# 0 2 * * * cd /完整/路径/到/daoji-demo && /完整/路径/到/.venv/bin/aws-traffic --no-auto-stop >> /完整/路径/到/daoji-demo/logs/traffic.log 2>&1
+
+# 如果想使用uvx运行，需要确保uvx已正确安装，并且包已经全局安装
+# 0 2 * * * cd /完整/路径/到/daoji-demo && /usr/local/bin/uvx pip install -e . > /dev/null && /usr/local/bin/aws-traffic >> /完整/路径/到/daoji-demo/logs/traffic.log 2>&1
+
+# 使用包装脚本方式（推荐）
+# 创建一个名为run_traffic.sh的脚本:
+# #!/bin/bash
+# cd /完整/路径/到/daoji-demo
+# source .venv/bin/activate
+# aws-traffic
+# 
+# 然后在crontab中：
+# 0 2 * * * /bin/bash /完整/路径/到/daoji-demo/run_traffic.sh >> /完整/路径/到/daoji-demo/logs/traffic.log 2>&1 
