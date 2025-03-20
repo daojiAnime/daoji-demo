@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>现代风格欢迎页</title>
+    <!-- 官方最新稳定版CDN（v3.4.1） -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入常用插件 -->
+    <script>
+        tailwind.config = {
+            plugins: [
+                require('@tailwindcss/typography'),
+                require('@tailwindcss/forms'),
+            ],
+            theme: {
+                extend: {
+                    spacing: {
+                        '128': '32rem'
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+                        'neumorphism': '20px 20px 60px #d1d1d1, -20px -20px 60px #ffffff'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- 引入 Iconify 图标库 -->
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <!-- 图片容器增加加载状态 -->
+    <div class="absolute inset-0 z-0 animate-pulse bg-gray-200">
+        <img 
+            src="https://api.unsplash.com/photos/random/?client_id=nVycJe5FkbwXEs4uSzQpQhk5mWPV4zJ3W25JQa3Nq40&query=nature&orientation=landscape&w=1920&h=1080&fit=crop" 
+            alt="动态背景"
+            class="w-full h-full object-cover opacity-90"
+            loading="lazy"
+            id="dynamicBg"
+            onerror="this.onerror=null;this.src='https://source.unsplash.com/featured/1920x1080/?nature';this.parentElement.classList.remove('animate-pulse', 'bg-gray-200')">
+    </div>
+
+    <!-- 主内容容器 -->
+    <main class="relative z-10 min-h-screen flex flex-col items-center justify-center p-8">
+        <!-- 动态图标组 -->
+        <div class="flex gap-6 mb-12">
+            <iconify-icon 
+                icon="mdi:atom-variant" 
+                class="text-6xl text-blue-600/80 hover:text-blue-500 transition-all 
+                       animate-[pulse_3s_ease-in-out_infinite] hover:animate-spin">
+            </iconify-icon>
+            <iconify-icon 
+                icon="mdi:code-braces" 
+                class="text-6xl text-purple-600/80 hover:text-purple-500 transition-all 
+                       animate-[ping_2s_ease-in-out_infinite]">
+            </iconify-icon>
+        </div>
+
+        <!-- 玻璃拟态卡片 -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-glass 
+                   border border-white/20 hover:shadow-neumorphism transition-shadow
+                   max-w-2xl w-full">
+            <h1 class="text-5xl md:text-6xl font-black bg-gradient-to-r from-blue-600 to-purple-500 
+                      bg-clip-text text-transparent mb-6 tracking-tighter">
+                探索数字未来
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-gray-700 leading-relaxed relative pl-6 
+                     before:absolute before:left-0 before:top-2 before:w-1 before:h-16 
+                     before:bg-gradient-to-b from-blue-400 to-purple-300">
+                在虚实交融的时代，我们重新定义人机交互的边界，<br>
+                用代码构建明日世界的基石。
+            </p>
+
+            <!-- 悬浮按钮组 -->
+            <div class="mt-10 flex gap-4 justify-center">
+                <button class="bg-gradient-to-br from-blue-600 to-purple-500 text-white px-8 py-4 
+                             rounded-xl shadow-lg hover:shadow-xl transition-all transform 
+                             hover:scale-105 flex items-center gap-3 group">
+                    <iconify-icon 
+                        icon="mdi:rocket-launch" 
+                        class="text-xl group-hover:rotate-45 transition-transform">
+                    </iconify-icon>
+                    立即启程
+                </button>
+                
+                <button class="bg-white/90 backdrop-blur-sm text-gray-700 px-8 py-4 
+                             rounded-xl shadow-md hover:shadow-lg transition-all border 
+                             border-white/20 hover:bg-white">
+                    了解更多
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 动态底部 -->
+    <!-- <footer class="relative z-10 text-center pb-8 mt-12">
+        <div class="inline-flex gap-4 text-gray-600 hover:text-gray-800 transition-colors">
+            <a href="https://unsplash.com" class="flex items-center gap-1.5 hover:text-blue-600">
+                <iconify-icon icon="mdi:camera"></iconify-icon>
+                <span>图片授权</span>
+            </a>
+            <span class="text-gray-300">|</span>
+            <a href="https://iconify.design" class="flex items-center gap-1.5 hover:text-purple-600">
+                <iconify-icon icon="mdi:palette"></iconify-icon>
+                <span>图标资源</span>
+            </a>
+        </div>
+    </footer> -->
+
+    <!-- 微交互脚本 -->
+    <script>
+        // 添加视差滚动效果
+        window.addEventListener('scroll', () => {
+             const main = document.querySelector('main');
+            const scrolled = window.pageYOffset;
+            main.style.transform = `translateY(${scrolled * 0.1}px)`;
+        });
+
+        // 添加图片加载检测
+        const bgImage = document.getElementById('dynamicBg');
+        
+        // 正式API请求
+        fetch('https://api.unsplash.com/photos/random/?client_id=nVycJe5FkbwXEs4uSzQpQhk5mWPV4zJ3W25JQa3Nq40&query=nature')
+            .then(response => {
+                if (!response.ok) throw new Error('API请求失败');
+                return response.json();
+            })
+            .then(data => {
+                bgImage.src = `${data.urls.raw}&w=1920&h=1080&fit=crop&q=80`;
+                bgImage.alt = data.alt_description || 'Unsplash精选图片';
+                bgImage.parentElement.classList.remove('animate-pulse', 'bg-gray-200');
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                bgImage.src = 'https://source.unsplash.com/featured/1920x1080/?nature';
+                bgImage.parentElement.classList.remove('animate-pulse', 'bg-gray-200');
+            });
+    </script>
+</body>
+</html> 
