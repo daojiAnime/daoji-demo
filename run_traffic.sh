@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 设置日志目录
-LOG_DIR="logs"
+LOG_DIR="/root/daoji-demo/logs"
 mkdir -p $LOG_DIR
 
 # 记录开始时间
