@@ -1,0 +1,24 @@
+{
+    "name": "John",
+    "age": 30,
+    "city": ["New York", true, 1],
+    "address": [
+        {
+            "street": "123 Main St",
+            "city": "Anytown",
+            "zip": "12345"
+        },
+        {
+            "street": "456 Oak Ave",
+            "city": "Othertown",
+            "zip": "67890",
+            "country": "USA"
+        },
+        {
+            "street": "789 Pine Rd",
+            "city": "Smallville",
+            "zip": "98765",
+            "house_number": 10
+        }
+    ]
+}
