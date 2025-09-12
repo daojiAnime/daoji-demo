@@ -1,24 +1,23 @@
-from openai import OpenAI
 import asyncio
 import os
-from openai import AsyncOpenAI
+import sys
 from typing import List
-from opik.integrations.openai import track_openai
-from tenacity import retry, stop_after_attempt, wait_random_exponential
-from loguru import logger
+
 from configs.configs import *
 from logics.copilot.llm_openrouter import LLMOpenRouter
-from rich import print
-from rich.live import Live
-from rich.panel import Panel
-from rich.layout import Layout
-from rich.console import Console
-from rich.text import Text
-from rich.markdown import Markdown
-from rich.console import Group
-from rich.padding import Padding
+from loguru import logger
+from openai import AsyncOpenAI, OpenAI
+from opik.integrations.openai import track_openai
 from pydantic import BaseModel
-import sys
+from rich import print
+from rich.console import Console, Group
+from rich.layout import Layout
+from rich.live import Live
+from rich.markdown import Markdown
+from rich.padding import Padding
+from rich.panel import Panel
+from rich.text import Text
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 choose_member_prompt = """\
 # Role

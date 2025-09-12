@@ -1,0 +1,26 @@
+import time
+
+from rich import inspect, print  # noqa
+
+from daoji_core.config.manager import ConfigManager
+from daoji_core.config.supabase import SupabaseConfig
+from supabase import create_client
+
+
+def main():
+    supabase_config = ConfigManager.register_config("supabase", SupabaseConfig)
+    print(supabase_config)
+
+    supabase = create_client(supabase_config.SUPABASE_URL, supabase_config.SUPABASE_ANNO_KEY)
+    start_time = time.perf_counter()
+    response = supabase.auth.set_session(
+        access_token="eyJhbGciOiJIUzI1NiIsImtpZCI6InQvcWk0Y2lvdld2cnJoamYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2JmeGdybmRvdmRteWtydHdsYWJjLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI3NjEwMGM2Yy1mMmY5LTQyM2UtOGYwMy02YjNjODgwNmZlMmIiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzQ5NzIzMDM1LCJpYXQiOjE3NDk3MTk0MzUsImVtYWlsIjoiZGFvamkuY2hhbmdAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCIsImdvb2dsZSIsImdpdGh1YiJdfSwidXNlcl9tZXRhZGF0YSI6eyJhdmF0YXJfdXJsIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSlFxTUxQWHdOVFFqcy1IRkhtckQwZ1VER1d4cHNzYXQ2dmxBdU1PT3RDdmhFMVhTaz1zOTYtYyIsImVtYWlsIjoiZGFvamkuY2hhbmdAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6IumZiOS4nOaYjCIsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiLpmYjkuJzmmIwiLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKUXFNTFBYd05UUWpzLUhGSG1yRDBnVURHV3hwc3NhdDZ2bEF1TU9PdEN2aEUxWFNrPXM5Ni1jIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiZGFvamlBbmltZSIsInByb3ZpZGVyX2lkIjoiMTEyNDUxNDY3MTYyMzMzMzg4OTgxIiwic3ViIjoiMTEyNDUxNDY3MTYyMzMzMzg4OTgxIiwidXNlcl9uYW1lIjoiZGFvamlBbmltZSJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6Im9hdXRoIiwidGltZXN0YW1wIjoxNzQ5NzE5NDM1fV0sInNlc3Npb25faWQiOiJlYjU4ZWQwNC01NTQ2LTQwMDUtYjIyNi1mMGVkZTM5ZDNjNjciLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.eKhB2fMw_xah2DotFBTnKVIu3va8uV8zSRoxl9_sUkE",
+        refresh_token="2fp6s5ztdecg",
+    )
+    end_time = time.perf_counter()
+    print(f"Time taken: {end_time - start_time} seconds")
+    # print(response)
+
+
+if __name__ == "__main__":
+    main()
