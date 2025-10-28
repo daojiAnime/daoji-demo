@@ -1,0 +1,106 @@
+version: "3.8"
+
+services:
+  # PostgreSQL 数据库（生产环境推荐）
+  postgres:
+    image: postgres:15-alpine
+    container_name: prefect-postgres
+    environment:
+      POSTGRES_USER: prefect
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-prefect-password}
+      POSTGRES_DB: prefect
+    volumes:
+      - prefect-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prefect"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - prefect-network
+    restart: unless-stopped
+
+  # Prefect Server
+  prefect-server:
+    image: prefecthq/prefect:3-latest
+    container_name: prefect-server
+    command: prefect server start --host 0.0.0.0
+    environment:
+      # 数据库配置
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://prefect:${POSTGRES_PASSWORD:-prefect-password}@postgres:5432/prefect
+      
+      # API 配置
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_SERVER_API_PORT: 4200
+      
+      # UI 配置（生产环境需要修改为实际域名）
+      PREFECT_UI_API_URL: ${PREFECT_UI_API_URL:-http://localhost:4200/api}
+      
+      # 时区配置（中国时间）
+      TZ: Asia/Shanghai
+      
+      # 日志配置
+      PREFECT_LOGGING_SERVER_LEVEL: ${LOG_LEVEL:-INFO}
+      
+    ports:
+      - "${PREFECT_PORT:-4200}:4200"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - prefect-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+  # Prefect Worker - 通用任务处理
+  prefect-worker:
+    image: prefecthq/prefect:3-latest
+    container_name: prefect-worker
+    command: prefect worker start --pool default --type process
+    environment:
+      # 连接到 Prefect Server
+      PREFECT_API_URL: http://prefect-server:4200/api
+      
+      # 时区配置
+      TZ: Asia/Shanghai
+      
+      # 日志配置
+      PREFECT_LOGGING_LEVEL: ${LOG_LEVEL:-INFO}
+      
+    volumes:
+      # 挂载你的 flow 代码目录
+      - ./flows:/flows
+      - ./data:/data
+    working_dir: /flows
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks:
+      - prefect-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+volumes:
+  prefect-db-data:
+    driver: local
+
+networks:
+  prefect-network:
+    driver: bridge
+

@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Prefect
+.prefect/
+
+# 环境变量文件（包含敏感信息）
+.env
+
+# 数据文件（但保留目录结构）
+data/*
+!data/.gitkeep
+
+# 备份文件（但保留目录结构）
+backups/*
+!backups/.gitkeep
+
+# SSL 证书（但保留目录结构）
+ssl/*
+!ssl/.gitkeep
+
+# 日志
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+

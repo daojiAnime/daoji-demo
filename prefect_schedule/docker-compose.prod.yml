@@ -1,0 +1,156 @@
+version: "3.8"
+
+# 生产环境配置（包含 Redis、Nginx 等）
+services:
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: prefect-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis-password}
+    volumes:
+      - prefect-redis-data:/data
+    networks:
+      - prefect-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: prefect-postgres
+    environment:
+      POSTGRES_USER: prefect
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: prefect
+    volumes:
+      - prefect-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prefect"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - prefect-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  prefect-server:
+    image: prefecthq/prefect:3-latest
+    container_name: prefect-server
+    command: prefect server start --host 0.0.0.0
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://prefect:${POSTGRES_PASSWORD}@postgres:5432/prefect
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_SERVER_API_PORT: 4200
+      PREFECT_UI_API_URL: ${PREFECT_UI_API_URL}
+      TZ: Asia/Shanghai
+      PREFECT_LOGGING_SERVER_LEVEL: ${LOG_LEVEL:-INFO}
+      # 生产环境安全配置
+      PREFECT_SERVER_CSRF_PROTECTION_ENABLED: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - prefect-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  # Worker 集群（可扩展）
+  prefect-worker:
+    image: prefecthq/prefect:3-latest
+    command: prefect worker start --pool default --type process
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      TZ: Asia/Shanghai
+      PREFECT_LOGGING_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./flows:/flows
+      - ./data:/data
+    working_dir: /flows
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks:
+      - prefect-network
+    restart: unless-stopped
+    deploy:
+      replicas: 3  # 启动 3 个 worker 实例
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: prefect-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - prefect-server
+    networks:
+      - prefect-network
+    restart: unless-stopped
+
+  # 数据库备份服务
+  postgres-backup:
+    image: postgres:15-alpine
+    container_name: prefect-backup
+    environment:
+      PGHOST: postgres
+      PGUSER: prefect
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: prefect
+      BACKUP_KEEP_DAYS: 7
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    command: >
+      sh -c "while true; do
+        pg_dump -h postgres -U prefect prefect > /backups/prefect_$(date +\%Y\%m\%d_\%H\%M\%S).sql;
+        find /backups -name '*.sql' -mtime +7 -delete;
+        sleep 86400;
+      done"
+    depends_on:
+      - postgres
+    networks:
+      - prefect-network
+    restart: unless-stopped
+
+volumes:
+  prefect-db-data:
+    driver: local
+  prefect-redis-data:
+    driver: local
+
+networks:
+  prefect-network:
+    driver: bridge
+
