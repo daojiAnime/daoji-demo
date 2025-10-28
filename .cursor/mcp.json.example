@@ -1,0 +1,39 @@
+{
+  "mcpServers": {
+    "mcp-server-hotnews": {
+      "command": "npx",
+      "args": ["-y", "@wopal/mcp-server-hotnews"]
+    },
+    "taskmaster-ai": {
+      "command": "bunx",
+      "args": ["-y", "--package=task-master-ai", "task-master-ai"],
+      "env": {
+        "ANTHROPIC_API_KEY": "your-anthropic-api-key-here",
+        "PERPLEXITY_API_KEY": "your-perplexity-api-key-here",
+        "MODEL": "claude-3-7-sonnet-20250219",
+        "PERPLEXITY_MODEL": "sonar-pro",
+        "MAX_TOKENS": 64000,
+        "TEMPERATURE": 0.2,
+        "DEFAULT_SUBTASKS": 5,
+        "DEFAULT_PRIORITY": "medium"
+      }
+    },
+    "chrome-mcp-server": {
+      "type": "streamableHttp",
+      "url": "http://127.0.0.1:12306/mcp"
+    },
+    "browsermcp": {
+      "command": "bunx",
+      "args": ["-y", "@browsermcp/mcp@latest"]
+    },
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/mcp",
+      "transport": "streamable_http"
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/sse",
+      "transport": "sse"
+    }
+  }
+}
+

@@ -1,0 +1,157 @@
+---
+description: Git Commit 规范 - 基于 Conventional Commits 和 czg 配置
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Git Commit 规范
+
+本项目使用 **Conventional Commits** 规范，通过 `czg` (commitizen-git) 工具强制执行。
+
+## 快速使用
+
+```bash
+# 使用交互式工具（推荐）
+pnpm commit
+
+# 快捷别名
+pnpm commit :f   # docs: fix typos
+pnpm commit :r   # docs: update README
+pnpm commit :s   # style: update code format
+```
+
+---
+
+## Commit 消息格式
+
+### 标准格式
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+### 核心规则
+
+1. **Type（必需）**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`
+2. **Scope（可选）**: 模块名，基于 `src/` 目录（api, component, view, store, util, router...）
+3. **Subject（必需）**: 
+   - 使用祈使句、现在时（"add" 而非 "added"）
+   - 首字母小写
+   - 不超过 50 字符
+   - 不以句号结尾
+
+---
+
+## 常用 Type
+
+| Type | 说明 | 示例 |
+|------|------|------|
+| **feat** | 新功能 | `feat(vip): add membership upgrade flow` |
+| **fix** | Bug 修复 | `fix(login): resolve password validation issue` |
+| **docs** | 文档更新 | `docs(api): update authentication guide` |
+| **style** | 代码格式 | `style(component): format code with prettier` |
+| **refactor** | 代码重构 | `refactor(store): simplify state management` |
+| **perf** | 性能优化 | `perf(dashboard): optimize chart rendering` |
+| **test** | 测试相关 | `test(user): add unit tests for user service` |
+| **build** | 构建/依赖 | `build: upgrade vite to 5.0` |
+| **chore** | 其他杂项 | `chore: update .gitignore` |
+
+---
+
+## Scope 自动检测
+
+基于 `src/` 目录结构：
+
+```
+api, component, view, store, util, router, 
+layout, hook, directive, enum, locale, logic
+```
+
+**示例**:
+```bash
+✅ feat(dashboard): add revenue chart
+✅ fix(api/user): handle invalid email format
+✅ refactor(store,router): simplify navigation
+```
+
+---
+
+## 好的示例
+
+```bash
+# 功能开发
+feat(dashboard): add user analytics chart
+
+Implement comprehensive analytics dashboard with:
+- Daily/weekly/monthly user activity charts
+- Revenue tracking and forecasting
+
+Closes #123
+
+# Bug 修复
+fix(api): handle null response in user endpoint
+
+# 重大变更
+refactor(auth)!: migrate to OAuth 2.0
+
+BREAKING CHANGE: Token structure has changed, users must re-authenticate
+```
+
+---
+
+## 避免的做法
+
+```bash
+❌ git commit -m "update"                    # 太模糊
+❌ git commit -m "Added new feature"         # 应该用动词原形
+❌ git commit -m "feat: add feature and fix bug"  # 混合多种类型
+❌ git commit -m "FEAT: ADD FEATURE"         # 不应该全大写
+```
+
+---
+
+## AI 生成 Commit Message 流程
+
+1. **分析更改**: 识别修改的文件/模块
+2. **确定 Type**: 根据更改类型选择 (feat/fix/refactor/docs...)
+3. **确定 Scope**: 根据文件路径确定模块
+   ```
+   src/views/dashboard/ → dashboard
+   src/api/user.ts → api
+   src/store/modules/user.ts → store
+   ```
+4. **生成消息**: `<type>(<scope>): <subject>`
+
+**示例**:
+```bash
+# 场景：添加新组件 src/components/Chart/LineChart.vue
+feat(component): add reusable line chart component
+
+# 场景：修复登录表单 src/views/login/LoginForm.vue
+fix(login): prevent duplicate login requests
+
+# 场景：优化仪表盘 src/views/dashboard/index.vue
+perf(dashboard): optimize chart rendering
+```
+
+---
+
+## 提交前自动检查
+
+项目配置了 Husky + lint-staged，自动执行：
+1. Prettier 格式化
+2. ESLint 检查
+3. Stylelint 检查
+4. Commitlint 规范检查
+
+---
+
+## 参考
+
+- [Conventional Commits](https://www.conventionalcommits.org/)
+- [cz-git 文档](https://cz-git.qbb.sh/)
+- 配置文件: `.commitlintrc.js`

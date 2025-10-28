@@ -14,3 +14,6 @@ wheels/
 .env
 .python-version
 .DS_Store
+
+# Cursor - 包含敏感信息的配置文件
+.cursor/mcp.json
