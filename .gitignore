@@ -16,4 +16,7 @@ wheels/
 .DS_Store
 
 # Cursor - 包含敏感信息的配置文件
-.cursor/mcp.json
+.cursor/
+.mcp.json
+.claude/
+.envrc
